@@ -28,7 +28,7 @@ BuildRequires:	librsvg-devel
 BuildRequires:	libstdc++-devel
 BuildRequires:	libtool
 BuildRequires:	perl-devel
-BuildRequires:	pkgconfig
+BuildRequires:	pkg-config
 BuildRequires:	python-devel
 BuildRequires:	xorg-libX11-devel
 BuildRequires:	xorg-libXaw-devel
