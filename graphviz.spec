@@ -1,15 +1,14 @@
+# based on PLD Linux spec git://git.pld-linux.org/packages/.git
 Summary:	Graph Visualization Tools
 Name:		graphviz
-Version:	2.26.3
-Release:	5
+Version:	2.38.0
+Release:	1
 License:	CPL v1.0
 Group:		X11/Applications/Graphics
 Source0:	http://www.graphviz.org/pub/graphviz/ARCHIVE/%{name}-%{version}.tar.gz
-# Source0-md5:	6f45946fa622770c45609778c0a982ee
-Patch0:		%{name}-fontpath.patch
-Patch1:		%{name}-no-versioned-plugins.patch
-Patch2:		%{name}-am.patch
-Patch3:		%{name}-ltdl.patch
+# Source0-md5:	5b6a829b2ac94efcd5fa3c223ed6d3ae
+Patch0:		%{name}-ltdl.patch
+Patch1:		%{name}-fontpath.patch
 URL:		http://www.graphviz.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -31,7 +30,6 @@ BuildRequires:	perl-devel
 BuildRequires:	pkg-config
 BuildRequires:	python-devel
 BuildRequires:	xorg-libX11-devel
-BuildRequires:	xorg-libXaw-devel
 BuildRequires:	xorg-libXpm-devel
 BuildRequires:	zlib-devel
 Requires:	%{name}-libs = %{version}-%{release}
@@ -71,8 +69,11 @@ This package provides some example graphs.
 %setup -q
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1
+
+%{__sed} \
+    -i -e 's|-version-info @GVPLUGIN_VERSION_INFO@|-module -avoid-version @LDFLAGS@|g'	\
+    -i -e 's|-version-info $(GVPLUGIN_VERSION_INFO)|-module -avoid-version @LDFLAGS@|g'	\
+    plugin*/*/Makefile.am
 
 %build
 %{__libtoolize}
@@ -114,8 +115,9 @@ touch $RPM_BUILD_ROOT%{_libdir}/graphviz/config
 rm -f $RPM_BUILD_ROOT%{_libdir}/graphviz/*/libgv_*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/graphviz/*.la
 rm -rf $RPM_BUILD_ROOT%{_datadir}/graphiz/doc
-
 rm -rf $RPM_BUILD_ROOT%{_datadir}/graphviz/doc
+
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/*.la
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -134,20 +136,20 @@ umask 022
 %attr(755,root,root) %{_libdir}/graphviz/libgvplugin_core.so
 %attr(755,root,root) %{_libdir}/graphviz/libgvplugin_dot_layout.so
 %attr(755,root,root) %{_libdir}/graphviz/libgvplugin_gd.so
-%attr(755,root,root) %{_libdir}/graphviz/libgvplugin_neato_layout.so
-
-%attr(755,root,root) %{_libdir}/graphviz/libgvplugin_gdk_pixbuf.so
+%attr(755,root,root) %{_libdir}/graphviz/libgvplugin_gdk.so
 %attr(755,root,root) %{_libdir}/graphviz/libgvplugin_gs.so
 %attr(755,root,root) %{_libdir}/graphviz/libgvplugin_gtk.so
+%attr(755,root,root) %{_libdir}/graphviz/libgvplugin_neato_layout.so
 %attr(755,root,root) %{_libdir}/graphviz/libgvplugin_pango.so
+%attr(755,root,root) %{_libdir}/graphviz/libgvplugin_poppler.so
 %attr(755,root,root) %{_libdir}/graphviz/libgvplugin_rsvg.so
 %attr(755,root,root) %{_libdir}/graphviz/libgvplugin_xlib.so
-
 %dir %{_libdir}/graphviz
 %ghost %{_libdir}/graphviz/config
 
 # what about the rest of *.la?
 %dir %{_datadir}/graphviz
+%{_datadir}/graphviz/gvpr
 %{_datadir}/graphviz/lefty
 %{_mandir}/man1/*
 
@@ -155,14 +157,12 @@ umask 022
 %defattr(644,root,root,755)
 %attr(755,root,root) %ghost %{_libdir}/libcdt.so.?
 %attr(755,root,root) %ghost %{_libdir}/libcgraph.so.?
-%attr(755,root,root) %ghost %{_libdir}/libgraph.so.?
 %attr(755,root,root) %ghost %{_libdir}/libgvc.so.?
 %attr(755,root,root) %ghost %{_libdir}/libpathplan.so.?
 %attr(755,root,root) %ghost %{_libdir}/libgvpr.so.?
 %attr(755,root,root) %ghost %{_libdir}/libxdot.so.?
 %attr(755,root,root) %{_libdir}/libcdt.so.*.*.*
 %attr(755,root,root) %{_libdir}/libcgraph.so.*.*.*
-%attr(755,root,root) %{_libdir}/libgraph.so.*.*.*
 %attr(755,root,root) %{_libdir}/libgvc.so.*.*.*
 %attr(755,root,root) %{_libdir}/libpathplan.so.*.*.*
 %attr(755,root,root) %{_libdir}/libgvpr.so.*.*.*
@@ -172,7 +172,6 @@ umask 022
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libcdt.so
 %attr(755,root,root) %{_libdir}/libcgraph.so
-%attr(755,root,root) %{_libdir}/libgraph.so
 %attr(755,root,root) %{_libdir}/libgvc.so
 %attr(755,root,root) %{_libdir}/libgvpr.so
 %attr(755,root,root) %{_libdir}/libpathplan.so
@@ -180,7 +179,6 @@ umask 022
 %{_includedir}/graphviz
 %{_pkgconfigdir}/libcdt.pc
 %{_pkgconfigdir}/libcgraph.pc
-%{_pkgconfigdir}/libgraph.pc
 %{_pkgconfigdir}/libgvc.pc
 %{_pkgconfigdir}/libgvpr.pc
 %{_pkgconfigdir}/libpathplan.pc
